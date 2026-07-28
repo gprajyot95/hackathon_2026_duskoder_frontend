@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { SchemaMetadata, TableMetadata, ColumnMetadata } from '../types';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
 // List of internal application metadata tables to exclude from ER rendering
 const EXCLUDED_TABLES = new Set(['app_user', 'app_schema_diagram', 'chat_message']);

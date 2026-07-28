@@ -4,9 +4,7 @@ import { useAuth } from './hooks/useAuth';
 import { GoogleLogin } from './components/Auth/GoogleLogin';
 import { Dashboard } from './components/Layout/Dashboard';
 
-const GOOGLE_CLIENT_ID =
-  import.meta.env.VITE_GOOGLE_CLIENT_ID ||
-  '46742105539-2ku9v0j01fg47bel3ec7hh2733svodbg.apps.googleusercontent.com';
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
 
 export function App() {
   const { user, isAuthenticated, isLoading, login, logout } = useAuth();

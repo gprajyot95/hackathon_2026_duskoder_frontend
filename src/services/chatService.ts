@@ -1,9 +1,8 @@
 import axios from 'axios';
 import { ChatMessage, AiQueryResponse, ChatSession } from '../types';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
-const FASTAPI_ENDPOINT =
-  import.meta.env.VITE_FASTAPI_URL || 'https://querydata-fastapi-114564247435.us-central1.run.app/ask';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+const FASTAPI_ENDPOINT = import.meta.env.VITE_FASTAPI_URL || '';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
