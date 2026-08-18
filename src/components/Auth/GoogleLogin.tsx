@@ -28,26 +28,11 @@ export const GoogleLogin: React.FC<GoogleLoginProps> = ({ onLoginSuccess, onGitH
   const handleGitHubLogin = () => {
     setErrorMsg(null);
     const githubClientId = import.meta.env.VITE_GITHUB_CLIENT_ID;
-    if (githubClientId && githubClientId.trim() !== '') {
+    if (githubClientId && githubClientId.trim() !== '' && githubClientId !== 'your-github-client-id') {
       setIsAuthenticating(true);
       window.location.href = `https://github.com/login/oauth/authorize?client_id=${githubClientId}&scope=user:email`;
-    } else if (onGitHubLoginSuccess) {
-      setIsAuthenticating(true);
-      onGitHubLoginSuccess({
-        githubId: `github-demo-${Date.now()}`,
-        name: 'GitHub Developer',
-        email: 'developer@github.com',
-        picture: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&q=80',
-        role: 'ADMIN',
-      });
     } else {
-      onLoginSuccess({
-        githubId: `github-demo-${Date.now()}`,
-        name: 'GitHub Developer',
-        email: 'developer@github.com',
-        picture: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&q=80',
-        role: 'ADMIN',
-      });
+      setErrorMsg('GitHub Client ID is not configured. Please set VITE_GITHUB_CLIENT_ID in your environment variables.');
     }
   };
 
