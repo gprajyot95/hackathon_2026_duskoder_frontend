@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: frontend-service
+    env: static
+    buildCommand: npm run build
+    staticPublishPath: ./dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_BASE_URL
+        value: https://backend-service-tw1q.onrender.com
+      - key: VITE_GOOGLE_CLIENT_ID
+        sync: false
+      - key: VITE_FASTAPI_URL
+        sync: false
