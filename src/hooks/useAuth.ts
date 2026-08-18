@@ -12,6 +12,9 @@ export const useAuth = () => {
     return localStorage.getItem('erp_token');
   });
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isExchangingCode, setIsExchangingCode] = useState<boolean>(() => {
+    return typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('code');
+  });
 
   const login = async (googleTokenOrProfile: any) => {
     setIsLoading(true);
@@ -91,12 +94,17 @@ export const useAuth = () => {
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
     if (code && !user) {
+      setIsExchangingCode(true);
       loginWithGitHub(code).then(() => {
         const newUrl = window.location.pathname;
         window.history.replaceState({}, document.title, newUrl);
       }).catch(err => {
         console.warn('GitHub authorization code processing failed:', err);
+      }).finally(() => {
+        setIsExchangingCode(false);
       });
+    } else {
+      setIsExchangingCode(false);
     }
   }, []);
 
@@ -120,6 +128,7 @@ export const useAuth = () => {
     token,
     isAuthenticated: !!user,
     isLoading,
+    isExchangingCode,
     login,
     loginWithGitHub,
     logout,
