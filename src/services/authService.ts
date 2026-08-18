@@ -52,6 +52,31 @@ export const authService = {
   },
 
   /**
+   * Authenticate GitHub OAuth code or profile with Spring Boot backend.
+   */
+  async loginWithGitHub(codeOrProfile: any): Promise<{ user: User; token: string }> {
+    let payload: any = {};
+    if (typeof codeOrProfile === 'string') {
+      payload = { code: codeOrProfile };
+    } else if (codeOrProfile.code) {
+      payload = { code: codeOrProfile.code };
+    } else {
+      payload = {
+        profile: {
+          githubId: codeOrProfile.githubId || codeOrProfile.id || `github-${Date.now()}`,
+          email: codeOrProfile.email,
+          name: codeOrProfile.name || codeOrProfile.login,
+          picture: codeOrProfile.picture || codeOrProfile.avatar_url,
+          role: codeOrProfile.role || 'USER',
+        },
+      };
+    }
+
+    const response = await api.post('/api/auth/github', payload);
+    return response.data;
+  },
+
+  /**
    * Fetch all users for ADMIN management.
    */
   async getAllUsers(): Promise<User[]> {

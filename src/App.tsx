@@ -7,12 +7,12 @@ import { Dashboard } from './components/Layout/Dashboard';
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
 
 export function App() {
-  const { user, isAuthenticated, isLoading, login, logout } = useAuth();
+  const { user, isAuthenticated, isLoading, login, loginWithGitHub, logout } = useAuth();
 
   if (!isAuthenticated || !user) {
     return (
       <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-        <GoogleLogin onLoginSuccess={login} isLoading={isLoading} />
+        <GoogleLogin onLoginSuccess={login} onGitHubLoginSuccess={loginWithGitHub} isLoading={isLoading} />
       </GoogleOAuthProvider>
     );
   }

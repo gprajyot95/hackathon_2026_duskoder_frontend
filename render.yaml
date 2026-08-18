@@ -13,5 +13,7 @@ services:
         value: https://backend-service-tw1q.onrender.com
       - key: VITE_GOOGLE_CLIENT_ID
         sync: false
+      - key: VITE_GITHUB_CLIENT_ID
+        sync: false
       - key: VITE_FASTAPI_URL
         value: https://querydata-fastapi-114564247435.us-central1.run.app/ask

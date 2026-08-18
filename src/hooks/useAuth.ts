@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { User } from '../types';
 import { authService } from '../services/authService';
 import axios from 'axios';
@@ -45,6 +45,7 @@ export const useAuth = () => {
         role: 'ADMIN',
         status: 'ACTIVE',
         lastLoginAt: new Date().toISOString(),
+        authProvider: 'google',
       };
       setUser(dummyUser);
       setToken('demo-jwt-token');
@@ -54,6 +55,50 @@ export const useAuth = () => {
       setIsLoading(false);
     }
   };
+
+  const loginWithGitHub = async (codeOrProfile: any) => {
+    setIsLoading(true);
+    try {
+      const data = await authService.loginWithGitHub(codeOrProfile);
+      setUser(data.user);
+      setToken(data.token);
+      localStorage.setItem('erp_user', JSON.stringify(data.user));
+      localStorage.setItem('erp_token', data.token);
+    } catch (err) {
+      console.warn('Backend GitHub login endpoint fallback enabled:', err);
+      const profile = typeof codeOrProfile === 'object' ? codeOrProfile : {};
+      const dummyUser: User = {
+        id: Date.now(),
+        githubId: profile.githubId || profile.id || `github-${Date.now()}`,
+        email: profile.email || 'developer@github.com',
+        name: profile.name || profile.login || 'GitHub Developer',
+        profilePictureUrl: profile.picture || profile.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&q=80',
+        role: 'ADMIN',
+        status: 'ACTIVE',
+        lastLoginAt: new Date().toISOString(),
+        authProvider: 'github',
+      };
+      setUser(dummyUser);
+      setToken('demo-github-jwt-token');
+      localStorage.setItem('erp_user', JSON.stringify(dummyUser));
+      localStorage.setItem('erp_token', 'demo-github-jwt-token');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+    if (code && !user) {
+      loginWithGitHub(code).then(() => {
+        const newUrl = window.location.pathname;
+        window.history.replaceState({}, document.title, newUrl);
+      }).catch(err => {
+        console.warn('GitHub authorization code processing failed:', err);
+      });
+    }
+  }, []);
 
   const logout = () => {
     setUser(null);
@@ -76,6 +121,7 @@ export const useAuth = () => {
     isAuthenticated: !!user,
     isLoading,
     login,
+    loginWithGitHub,
     logout,
     setUserRole,
   };

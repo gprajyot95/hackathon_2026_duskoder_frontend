@@ -33,13 +33,15 @@ export interface SchemaMetadata {
 
 export interface User {
   id: number | string;
-  googleId: string;
+  googleId?: string;
+  githubId?: string;
   email: string;
   name: string;
   profilePictureUrl?: string;
   role: 'ADMIN' | 'USER';
   status: 'ACTIVE' | 'INACTIVE' | 'SUSPENDED';
   lastLoginAt?: string;
+  authProvider?: 'google' | 'github';
 }
 
 export interface ChatMessage {
