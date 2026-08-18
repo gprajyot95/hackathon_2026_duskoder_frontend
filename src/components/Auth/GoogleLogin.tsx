@@ -10,33 +10,41 @@ interface GoogleLoginProps {
 
 export const GoogleLogin: React.FC<GoogleLoginProps> = ({ onLoginSuccess, onGitHubLoginSuccess, isLoading }) => {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [isAuthenticating, setIsAuthenticating] = useState<boolean>(false);
+  const [activeProvider, setActiveProvider] = useState<'google' | 'github' | null>(null);
 
   const triggerGoogleLogin = useGoogleLogin({
     onSuccess: (tokenResponse) => {
       setErrorMsg(null);
-      setIsAuthenticating(true);
+      setActiveProvider('google');
       onLoginSuccess(tokenResponse);
     },
     onError: (error) => {
       console.error('Google Sign-In Error:', error);
-      setIsAuthenticating(false);
+      setActiveProvider(null);
       setErrorMsg('Google authentication failed. Please try again.');
     },
   });
 
-  const handleGitHubLogin = () => {
+  const handleGoogleClick = () => {
+    setErrorMsg(null);
+    setActiveProvider('google');
+    triggerGoogleLogin();
+  };
+
+  const handleGitHubClick = () => {
     setErrorMsg(null);
     const githubClientId = import.meta.env.VITE_GITHUB_CLIENT_ID;
     if (githubClientId && githubClientId.trim() !== '' && githubClientId !== 'your-github-client-id') {
-      setIsAuthenticating(true);
+      setActiveProvider('github');
       window.location.href = `https://github.com/login/oauth/authorize?client_id=${githubClientId}&scope=user:email`;
     } else {
       setErrorMsg('GitHub Client ID is not configured. Please set VITE_GITHUB_CLIENT_ID in your environment variables.');
     }
   };
 
-  const loadingState = isLoading || isAuthenticating;
+  const isAnyLoading = isLoading || activeProvider !== null;
+  const isGoogleLoading = activeProvider === 'google';
+  const isGithubLoading = activeProvider === 'github';
 
   return (
     <div className="min-h-screen w-full bg-slate-950 text-slate-100 flex items-center justify-center p-4 relative overflow-hidden font-sans">
@@ -47,30 +55,49 @@ export const GoogleLogin: React.FC<GoogleLoginProps> = ({ onLoginSuccess, onGitH
       <div className="w-full max-w-md glass-panel p-8 rounded-2xl border border-slate-800/80 shadow-2xl relative z-10">
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center p-3 bg-brand-500/10 border border-brand-500/30 rounded-2xl mb-4 text-brand-500 shadow-lg shadow-brand-500/10">
-            <Database className="w-10 h-10" />
+            <Database className="w-9 h-9" />
           </div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">ERP Schema Explorer</h1>
-          <p className="text-sm text-slate-400 mt-1">AI-Powered Database Architecture</p>
+          <h1 className="text-3xl font-extrabold text-white tracking-tight">Welcome</h1>
+          <p className="text-sm text-slate-400 mt-1.5 font-medium">Login to your account</p>
         </div>
 
         {/* Error Alert */}
         {errorMsg && (
-          <div className="mb-6 p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl text-xs text-rose-400 text-center animate-fade-in">
+          <div className="mb-6 p-3.5 bg-rose-500/10 border border-rose-500/30 rounded-xl text-xs text-rose-400 text-center animate-fade-in font-medium">
             {errorMsg}
           </div>
         )}
 
-        <div className="space-y-3">
-          {/* Google Login Button */}
+        <div className="space-y-3.5">
+          {/* GitHub Login Button (Top) */}
           <button
-            onClick={() => triggerGoogleLogin()}
-            disabled={loadingState}
-            className="w-full py-3.5 px-4 bg-white hover:bg-slate-100 text-slate-900 font-semibold rounded-xl transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-3 border border-slate-300 active:scale-[0.99] disabled:opacity-75 disabled:cursor-not-allowed"
+            onClick={handleGitHubClick}
+            disabled={isAnyLoading}
+            className="w-full py-3.5 px-4 bg-slate-900 hover:bg-slate-850 active:bg-slate-800 text-white font-semibold rounded-xl transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-3 border border-slate-700/80 active:scale-[0.99] disabled:opacity-75 disabled:cursor-not-allowed"
           >
-            {loadingState ? (
+            {isGithubLoading ? (
+              <>
+                <Loader2 className="w-5 h-5 animate-spin text-white" />
+                <span>Connecting to GitHub...</span>
+              </>
+            ) : (
+              <>
+                <Github className="w-5 h-5 text-white" />
+                <span>Continue with GitHub</span>
+              </>
+            )}
+          </button>
+
+          {/* Google Login Button (Bottom) */}
+          <button
+            onClick={handleGoogleClick}
+            disabled={isAnyLoading}
+            className="w-full py-3.5 px-4 bg-white hover:bg-slate-100 active:bg-slate-200 text-slate-900 font-semibold rounded-xl transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-3 border border-slate-300 active:scale-[0.99] disabled:opacity-75 disabled:cursor-not-allowed"
+          >
+            {isGoogleLoading ? (
               <>
                 <Loader2 className="w-5 h-5 animate-spin text-brand-600" />
-                <span>Authenticating...</span>
+                <span>Connecting to Google...</span>
               </>
             ) : (
               <>
@@ -92,26 +119,7 @@ export const GoogleLogin: React.FC<GoogleLoginProps> = ({ onLoginSuccess, onGitH
                     d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
                   />
                 </svg>
-                <span>Login with Google</span>
-              </>
-            )}
-          </button>
-
-          {/* GitHub Login Button */}
-          <button
-            onClick={handleGitHubLogin}
-            disabled={loadingState}
-            className="w-full py-3.5 px-4 bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded-xl transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-3 border border-slate-700 active:scale-[0.99] disabled:opacity-75 disabled:cursor-not-allowed"
-          >
-            {loadingState ? (
-              <>
-                <Loader2 className="w-5 h-5 animate-spin text-slate-300" />
-                <span>Connecting to GitHub...</span>
-              </>
-            ) : (
-              <>
-                <Github className="w-5 h-5 text-white" />
-                <span>Login with GitHub</span>
+                <span>Continue with Google</span>
               </>
             )}
           </button>
